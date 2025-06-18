@@ -24,6 +24,13 @@ var oauthStateString = uuid.New().String()
 type GoogleLoginController struct{}
 type CookieController struct{}
 
+
+func (g *GoogleLoginController) GoogleHandleLogin(w http.ResponseWriter, r *http.Request) {
+	g.GoogleConfig()
+	url := googleOauthConfig.AuthCodeURL(oauthStateString, oauth2.AccessTypeOffline) // Generate the URL for Google's OAuth 2.0 server with the state parameter
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect) // Redirect the user to Google's OAuth 2.0 server
+}
+
 func (g *GoogleLoginController) GoogleConfig() {
 	googleOauthConfig = oauth2.Config{
 		RedirectURL:  fmt.Sprintf("%s/api/callback-gl", os.Getenv("DEV_URL")),
@@ -32,30 +39,22 @@ func (g *GoogleLoginController) GoogleConfig() {
 
 		Scopes: []string{
 			"https://www.googleapis.com/auth/userinfo.email",
-			"https://www.googleapis.com/auth/userinfo.profile",
+			"https://www.googleapis.com/auth/userinfo.profile", // Scopes for email and profile information
 		},
-		Endpoint: google.Endpoint,
+		Endpoint: google.Endpoint, //google OAuth2 endpoint
 	}
-	fmt.Printf("Google OAuth Client ID: %s\n", os.Getenv("GOOGLE_OAUTH_CLIENT_ID"))
-	fmt.Printf("Google OAuth Client Secret: %s\n", os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET"))
-}
-
-func (g *GoogleLoginController) GoogleHandleLogin(w http.ResponseWriter, r *http.Request) {
-	g.GoogleConfig()
-	url := googleOauthConfig.AuthCodeURL(oauthStateString, oauth2.AccessTypeOffline)
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
 func (g *GoogleLoginController) HandleCallback(w http.ResponseWriter, r *http.Request) {
+
 	// Get the 'state' parameter from the callback URL
 	state := r.URL.Query().Get("state")
-	// Check if the state matches the expected value to prevent CSRF
+	// Check if the state matches the expected value to prevent CSRF(Cross-Site Request Forgery) attacks
 	if state != oauthStateString {
 		http.Error(w, "Invalid OAuth state", http.StatusBadRequest)
 		RedirectWithError(w, r, fmt.Errorf("invalid OAuth state"))
 		return
 	}
-
 	// Get the 'code' parameter from the callback URL
 	code := r.URL.Query().Get("code")
 	// If code is missing, return an error

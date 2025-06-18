@@ -124,7 +124,7 @@ func EncryptToken(token string, key []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	// Generate a random nonce
+	// Generate a random nonce(IV)
 	nonce := make([]byte, gcm.NonceSize())
 	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
 		return "", err
