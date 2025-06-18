@@ -19,6 +19,7 @@ func SetupRoutes() *mux.Router {
 	bearerMiddleware := &middleware.Middleware{}
 
 	userRoutes.Handle("/users", bearerMiddleware.BearerTokenAuth(http.HandlerFunc(userController.GetAllUsers))).Methods("GET")
+	userRoutes.Handle("/user_profile", bearerMiddleware.BearerTokenAuth(http.HandlerFunc(userController.GetUserByID))).Methods("GET")
 	userRoutes.HandleFunc("/get_cookie", cookieController.GetCookie).Methods("GET")
 	userRoutes.HandleFunc("/delete_cookie", cookieController.DeleteCookie).Methods("POST")
 	userRoutes.HandleFunc("/login", loginController.GoogleHandleLogin)
