@@ -128,7 +128,7 @@ func ProcessUserToken(w http.ResponseWriter, r *http.Request, email string, gtok
 	// Set the JWT as a secure cookie
 	cookieController.SetCookie(w, tokenString, "")
 	// Redirect to the frontend after successful login
-	http.Redirect(w, r, fmt.Sprintf("%s/callback", os.Getenv("FRONTEND_URL")), http.StatusFound)
+	http.Redirect(w, r, os.Getenv("FRONTEND_URL"), http.StatusFound)
 
 	// Also return the token as JSON (optional)
 	w.Header().Set("Content-Type", "application/json")
