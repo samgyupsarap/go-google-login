@@ -103,8 +103,8 @@ func ProcessUserToken(w http.ResponseWriter, r *http.Request, email string, gtok
 	cookieController := CookieController{}
 	err = db.QueryRow("SELECT user_id, user_name, full_name FROM users WHERE email = ?", email).Scan(&userID, &userName, &fullName)
 	if err != nil {
-		http.Error(w, "Email not found in database", http.StatusUnauthorized)
 		http.Redirect(w, r, os.Getenv("FRONTEND_URL"), http.StatusFound)
+		http.Error(w, "Email not found in database", http.StatusUnauthorized)
 		return
 	}
 	// Create a user struct for JWT generation
