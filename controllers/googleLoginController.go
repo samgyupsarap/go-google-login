@@ -78,7 +78,7 @@ func (g *GoogleLoginController) HandleCallback(w http.ResponseWriter, r *http.Re
 	if err != nil {
 		log.Printf("Failed to verify token: %v", err)
 		http.Error(w, "Failed to verify token", http.StatusInternalServerError)
-		RedirectWithError(w, r, fmt.Errorf("failed to verify token"))	
+		RedirectWithError(w, r, fmt.Errorf("failed to verify token"))
 		return
 	}
 
@@ -103,6 +103,7 @@ func ProcessUserToken(w http.ResponseWriter, r *http.Request, email string, gtok
 	cookieController := CookieController{}
 	err = db.QueryRow("SELECT user_id, user_name, full_name FROM users WHERE email = ?", email).Scan(&userID, &userName, &fullName)
 	if err != nil {
+		http.Redirect(w, r, os.Getenv("FRONTEND_URL"), http.StatusFound)
 		http.Error(w, "Email not found in database", http.StatusUnauthorized)
 		return
 	}
@@ -127,7 +128,7 @@ func ProcessUserToken(w http.ResponseWriter, r *http.Request, email string, gtok
 	// Set the JWT as a secure cookie
 	cookieController.SetCookie(w, tokenString, "")
 	// Redirect to the frontend after successful login
-	http.Redirect(w, r, os.Getenv("FRONTEND_URL"), http.StatusFound)
+	http.Redirect(w, r, fmt.Sprintf("%s/callback", os.Getenv("FRONTEND_URL")), http.StatusFound)
 
 	// Also return the token as JSON (optional)
 	w.Header().Set("Content-Type", "application/json")
