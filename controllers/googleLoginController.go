@@ -78,7 +78,7 @@ func (g *GoogleLoginController) HandleCallback(w http.ResponseWriter, r *http.Re
 	if err != nil {
 		log.Printf("Failed to verify token: %v", err)
 		http.Error(w, "Failed to verify token", http.StatusInternalServerError)
-		RedirectWithError(w, r, fmt.Errorf("failed to verify token"))
+		RedirectWithError(w, r, fmt.Errorf("failed to verify token"))	
 		return
 	}
 
